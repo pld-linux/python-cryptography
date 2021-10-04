@@ -18,6 +18,7 @@ Source0:	https://files.pythonhosted.org/packages/source/c/cryptography/cryptogra
 #Source1Download: https://pypi.org/simple/cryptography_vectors/
 Source1:	https://files.pythonhosted.org/packages/source/c/cryptography-vectors/cryptography_vectors-%{version}.tar.gz
 # Source1-md5:	2a23fd073fc1f95a697ee96fc991e419
+Patch0:		openssl3.patch
 URL:		https://cryptography.io/
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	rpm-pythonprov >= 5.4.15-48
@@ -130,6 +131,7 @@ Dokumentacja API modułu cryptography.
 
 %prep
 %setup -q -n cryptography-%{version} %{?with_tests:-a1}
+%patch0 -p1
 
 %if %{with tests}
 %{__mv} cryptography_vectors-%{version}/cryptography_vectors .

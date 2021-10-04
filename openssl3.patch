@@ -1,0 +1,70 @@
+diff -ur cryptography-3.3.1/src/_cffi_src/openssl/err.py cryptography-3.3.1.openssl3/src/_cffi_src/openssl/err.py
+--- cryptography-3.3.1/src/_cffi_src/openssl/err.py	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1.openssl3/src/_cffi_src/openssl/err.py	2021-10-04 09:49:21.937085467 +0200
+@@ -40,7 +40,6 @@
+ void ERR_put_error(int, int, int, const char *, int);
+ 
+ int ERR_GET_LIB(unsigned long);
+-int ERR_GET_FUNC(unsigned long);
+ int ERR_GET_REASON(unsigned long);
+ 
+ """
+diff -ur cryptography-3.3.1/src/_cffi_src/openssl/evp.py cryptography-3.3.1.openssl3/src/_cffi_src/openssl/evp.py
+--- cryptography-3.3.1/src/_cffi_src/openssl/evp.py	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1.openssl3/src/_cffi_src/openssl/evp.py	2021-10-04 09:45:25.132351968 +0200
+@@ -9,6 +9,7 @@
+ """
+ 
+ TYPES = """
++typedef ... OSSL_LIB_CTX;
+ typedef ... EVP_CIPHER;
+ typedef ... EVP_CIPHER_CTX;
+ typedef ... EVP_MD;
+@@ -165,6 +166,10 @@
+                                       size_t);
+ int EVP_PKEY_get_raw_private_key(const EVP_PKEY *, unsigned char *, size_t *);
+ int EVP_PKEY_get_raw_public_key(const EVP_PKEY *, unsigned char *, size_t *);
++
++int EVP_set_default_properties(OSSL_LIB_CTX *, const char *);
++int EVP_default_properties_enable_fips(OSSL_LIB_CTX *, int);
++int EVP_default_properties_is_fips_enabled(OSSL_LIB_CTX *);
+ """
+ 
+ CUSTOMIZATIONS = """
+diff -ur cryptography-3.3.1/src/_cffi_src/openssl/fips.py cryptography-3.3.1.openssl3/src/_cffi_src/openssl/fips.py
+--- cryptography-3.3.1/src/_cffi_src/openssl/fips.py	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1.openssl3/src/_cffi_src/openssl/fips.py	2021-10-04 09:43:35.211752322 +0200
+@@ -6,6 +6,7 @@
+ 
+ INCLUDES = """
+ #include <openssl/crypto.h>
++#include <openssl/evp.h>
+ """
+ 
+ TYPES = """
+@@ -24,5 +25,13 @@
+ int (*FIPS_mode)(void) = NULL;
+ #else
+ static const long Cryptography_HAS_FIPS = 1;
++int FIPS_mode_set(int enable) {
++  if (enable)
++    return EVP_set_default_properties(NULL, "fips=yes");
++  return EVP_set_default_properties(NULL, "fips=no");
++}
++int FIPS_mode(void) {
++  return EVP_default_properties_is_fips_enabled(NULL);
++}
+ #endif
+ """
+diff -ur cryptography-3.3.1/src/cryptography/hazmat/bindings/openssl/binding.py cryptography-3.3.1.openssl3/src/cryptography/hazmat/bindings/openssl/binding.py
+--- cryptography-3.3.1/src/cryptography/hazmat/bindings/openssl/binding.py	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1.openssl3/src/cryptography/hazmat/bindings/openssl/binding.py	2021-10-04 09:48:10.767408920 +0200
+@@ -43,7 +43,7 @@
+             break
+ 
+         err_lib = lib.ERR_GET_LIB(code)
+-        err_func = lib.ERR_GET_FUNC(code)
++        err_func = 0
+         err_reason = lib.ERR_GET_REASON(code)
+ 
+         errors.append(_OpenSSLError(code, err_lib, err_func, err_reason))
