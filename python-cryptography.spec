@@ -1,7 +1,7 @@
 #
 # Conditional build:
 %bcond_without	python2	# CPython 2.x module
-%bcond_without	python3	# CPython 3.x module
+%bcond_with	python3	# CPython 3.x module
 %bcond_without	doc	# Sphinx documentation
 %bcond_without	tests	# unit test
 
@@ -132,6 +132,10 @@ Dokumentacja API modułu cryptography.
 %prep
 %setup -q -n cryptography-%{version} %{?with_tests:-a1}
 %patch0 -p1
+
+# Do not tests legacy, disabled by default algorithms
+# See man OSSL_PROVIDER-legacy(7)
+%{__rm} tests/hazmat/primitives/test_{arc4,blowfish,cast5,idea,seed}.py
 
 %if %{with tests}
 %{__mv} cryptography_vectors-%{version}/cryptography_vectors .
