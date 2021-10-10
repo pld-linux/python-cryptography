@@ -68,3 +68,13 @@ diff -ur cryptography-3.3.1/src/cryptography/hazmat/bindings/openssl/binding.py 
          err_reason = lib.ERR_GET_REASON(code)
  
          errors.append(_OpenSSLError(code, err_lib, err_func, err_reason))
+--- cryptography-3.3.1/src/_cffi_src/openssl/ssl.py~	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1/src/_cffi_src/openssl/ssl.py	2021-10-10 23:02:32.198272258 +0200
+@@ -91,6 +91,7 @@
+ static const long SSL_OP_SINGLE_ECDH_USE;
+ static const long SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION;
+ static const long SSL_OP_LEGACY_SERVER_CONNECT;
++static const long SSL_OP_IGNORE_UNEXPECTED_EOF;
+ static const long SSL_VERIFY_PEER;
+ static const long SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+ static const long SSL_VERIFY_CLIENT_ONCE;

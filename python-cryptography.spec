@@ -9,7 +9,7 @@ Summary:	Crypthography library for Python 2
 Summary(pl.UTF-8):	Biblioteka Cryptography dla Pythona 2
 Name:		python-cryptography
 Version:	3.3.1
-Release:	3
+Release:	4
 License:	Apache v2.0 or BSD
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/cryptography/
@@ -19,6 +19,7 @@ Source0:	https://files.pythonhosted.org/packages/source/c/cryptography/cryptogra
 Source1:	https://files.pythonhosted.org/packages/source/c/cryptography-vectors/cryptography_vectors-%{version}.tar.gz
 # Source1-md5:	2a23fd073fc1f95a697ee96fc991e419
 Patch0:		openssl3.patch
+Patch1:		openssl3-tests.patch
 URL:		https://cryptography.io/
 BuildRequires:	openssl-devel >= 1.1.0
 BuildRequires:	rpm-pythonprov >= 5.4.15-48
@@ -139,6 +140,7 @@ Dokumentacja API modułu cryptography.
 
 %if %{with tests}
 %{__mv} cryptography_vectors-%{version}/cryptography_vectors .
+%patch1 -p1
 %endif
 
 %build

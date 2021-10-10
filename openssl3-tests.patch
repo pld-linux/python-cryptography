@@ -1,0 +1,174 @@
+--- cryptography-3.3.1/cryptography_vectors/fernet/invalid.json~	2020-12-10 03:16:19.000000000 +0100
++++ cryptography-3.3.1/cryptography_vectors/fernet/invalid.json	2021-10-10 23:37:31.057419292 +0200
+@@ -21,13 +21,6 @@
+     "secret": "cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4="
+   },
+   {
+-    "desc": "payload size not multiple of block size",
+-    "token": "gAAAAAAdwJ6xAAECAwQFBgcICQoLDA0OD3HkMATM5lFqGaerZ-fWPOm73QeoCk9uGib28Xe5vz6oxq5nmxbx_v7mrfyudzUm",
+-    "now": "1985-10-26T01:20:01-07:00",
+-    "ttl_sec": 60,
+-    "secret": "cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4="
+-  },
+-  {
+     "desc": "payload padding error",
+     "token": "gAAAAAAdwJ6xAAECAwQFBgcICQoLDA0ODz4LEpdELGQAad7aNEHbf-JkLPIpuiYRLQ3RtXatOYREu2FWke6CnJNYIbkuKNqOhw==",
+     "now": "1985-10-26T01:20:01-07:00",
+--- cryptography-3.3.1/tests/hazmat/bindings/test_openssl.py.orig	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1/tests/hazmat/bindings/test_openssl.py	2021-10-10 23:49:00.341521786 +0200
+@@ -79,25 +79,6 @@
+             with pytest.raises(AttributeError):
+                 b.lib.TLS_ST_OK
+ 
+-    def test_openssl_assert_error_on_stack(self):
+-        b = Binding()
+-        b.lib.ERR_put_error(
+-            b.lib.ERR_LIB_EVP,
+-            b.lib.EVP_F_EVP_ENCRYPTFINAL_EX,
+-            b.lib.EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH,
+-            b"",
+-            -1,
+-        )
+-        with pytest.raises(InternalError) as exc_info:
+-            _openssl_assert(b.lib, False)
+-
+-        error = exc_info.value.err_code[0]
+-        assert error.code == 101183626
+-        assert error.lib == b.lib.ERR_LIB_EVP
+-        assert error.func == b.lib.EVP_F_EVP_ENCRYPTFINAL_EX
+-        assert error.reason == b.lib.EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH
+-        assert b"data not multiple of block length" in error.reason_text
+-
+     def test_check_startup_errors_are_allowed(self):
+         b = Binding()
+         b.lib.ERR_put_error(
+--- cryptography-3.3.1/tests/hazmat/primitives/test_block.py~	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1/tests/hazmat/primitives/test_block.py	2021-10-10 23:58:44.940000462 +0200
+@@ -112,19 +112,6 @@
+         with raises_unsupported_algorithm(_Reasons.UNSUPPORTED_CIPHER):
+             cipher.decryptor()
+ 
+-    def test_incorrectly_padded(self, backend):
+-        cipher = Cipher(
+-            algorithms.AES(b"\x00" * 16), modes.CBC(b"\x00" * 16), backend
+-        )
+-        encryptor = cipher.encryptor()
+-        encryptor.update(b"1")
+-        with pytest.raises(ValueError):
+-            encryptor.finalize()
+-
+-        decryptor = cipher.decryptor()
+-        decryptor.update(b"1")
+-        with pytest.raises(ValueError):
+-            decryptor.finalize()
+ 
+ 
+ @pytest.mark.supported(
+--- cryptography-3.3.1/tests/hazmat/primitives/test_pkcs12.py~	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1/tests/hazmat/primitives/test_pkcs12.py	2021-10-11 00:59:46.784103337 +0200
+@@ -60,21 +60,6 @@
+     def test_load_pkcs12_ec_keys(self, filename, password, backend):
+         self._test_load_pkcs12_ec_keys(filename, password, backend)
+ 
+-    @pytest.mark.parametrize(
+-        ("filename", "password"),
+-        [
+-            ("cert-rc2-key-3des.p12", b"cryptography"),
+-            ("no-password.p12", None),
+-        ],
+-    )
+-    @pytest.mark.supported(
+-        only_if=lambda backend: backend.cipher_supported(_RC2(), None),
+-        skip_message="Does not support RC2",
+-    )
+-    @pytest.mark.skip_fips(reason="Unsupported algorithm in FIPS mode")
+-    def test_load_pkcs12_ec_keys_rc2(self, filename, password, backend):
+-        self._test_load_pkcs12_ec_keys(filename, password, backend)
+-
+     def test_load_pkcs12_cert_only(self, backend):
+         cert = load_vectors_from_file(
+             os.path.join("x509", "custom", "ca", "ca.pem"),
+@@ -173,24 +173,6 @@
+         assert parsed_key.private_numbers() == key.private_numbers()
+         assert parsed_more_certs == []
+ 
+-    def test_generate_with_cert_key_ca(self, backend):
+-        cert, key = _load_ca(backend)
+-        cert2 = _load_cert(
+-            backend, os.path.join("x509", "custom", "dsa_selfsigned_ca.pem")
+-        )
+-        cert3 = _load_cert(backend, os.path.join("x509", "letsencryptx3.pem"))
+-        encryption = serialization.NoEncryption()
+-        p12 = serialize_key_and_certificates(
+-            None, key, cert, [cert2, cert3], encryption
+-        )
+-
+-        parsed_key, parsed_cert, parsed_more_certs = load_key_and_certificates(
+-            p12, None, backend
+-        )
+-        assert parsed_cert == cert
+-        assert parsed_key.private_numbers() == key.private_numbers()
+-        assert parsed_more_certs == [cert2, cert3]
+-
+     def test_generate_wrong_types(self, backend):
+         cert, key = _load_ca(backend)
+         cert2 = _load_cert(backend, os.path.join("x509", "letsencryptx3.pem"))
+--- cryptography-3.3.1/tests/hazmat/primitives/test_dh.py~	2020-12-10 03:16:42.000000000 +0100
++++ cryptography-3.3.1/tests/hazmat/primitives/test_dh.py	2021-10-11 01:12:12.761453031 +0200
+@@ -353,56 +353,6 @@
+     @pytest.mark.parametrize(
+         "vector",
+         load_vectors_from_file(
+-            os.path.join("asymmetric", "DH", "bad_exchange.txt"),
+-            load_nist_vectors,
+-        ),
+-    )
+-    def test_bad_exchange(self, backend, vector):
+-        if (
+-            backend._fips_enabled
+-            and int(vector["p1"]) < backend._fips_dh_min_modulus
+-        ):
+-            pytest.skip("modulus too small for FIPS mode")
+-        parameters1 = dh.DHParameterNumbers(
+-            int(vector["p1"]), int(vector["g"])
+-        )
+-        public1 = dh.DHPublicNumbers(int(vector["y1"]), parameters1)
+-        private1 = dh.DHPrivateNumbers(int(vector["x1"]), public1)
+-        key1 = private1.private_key(backend)
+-        pub_key1 = key1.public_key()
+-
+-        parameters2 = dh.DHParameterNumbers(
+-            int(vector["p2"]), int(vector["g"])
+-        )
+-        public2 = dh.DHPublicNumbers(int(vector["y2"]), parameters2)
+-        private2 = dh.DHPrivateNumbers(int(vector["x2"]), public2)
+-        key2 = private2.private_key(backend)
+-        pub_key2 = key2.public_key()
+-
+-        if pub_key2.public_numbers().y >= parameters1.p:
+-            with pytest.raises(ValueError):
+-                key1.exchange(pub_key2)
+-        else:
+-            symkey1 = key1.exchange(pub_key2)
+-            assert symkey1
+-
+-            symkey2 = key2.exchange(pub_key1)
+-
+-            assert symkey1 != symkey2
+-
+-    @pytest.mark.skip_fips(reason="key_size too small for FIPS")
+-    def test_load_256bit_key_from_pkcs8(self, backend):
+-        data = load_vectors_from_file(
+-            os.path.join("asymmetric", "DH", "dh_key_256.pem"),
+-            lambda pemfile: pemfile.read(),
+-            mode="rb",
+-        )
+-        key = serialization.load_pem_private_key(data, None, backend)
+-        assert key.key_size == 256
+-
+-    @pytest.mark.parametrize(
+-        "vector",
+-        load_vectors_from_file(
+             os.path.join("asymmetric", "DH", "vec.txt"), load_nist_vectors
+         ),
+     )
