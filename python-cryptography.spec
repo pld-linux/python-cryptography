@@ -29,7 +29,7 @@ BuildRequires:	python-cffi >= 1.12
 BuildRequires:	python-devel >= 1:2.7
 BuildRequires:	python-enum34
 BuildRequires:	python-pytz
-BuildRequires:	python-setuptools >= 18.5
+BuildRequires:	python-setuptools >= 1:18.5
 BuildRequires:	python-six >= 1.4.1
 %if %{with tests}
 %if "%{py_ver}" >= "2.7"
@@ -45,7 +45,7 @@ BuildRequires:	python-pytz
 %if %{with python3}
 BuildRequires:	python3-cffi >= 1.12
 BuildRequires:	python3-devel >= 1:3.6
-BuildRequires:	python3-setuptools >= 18.5
+BuildRequires:	python3-setuptools >= 1:18.5
 BuildRequires:	python3-six >= 1.4.1
 %if %{with tests}
 BuildRequires:	python3-hypothesis >= 1.11.4
