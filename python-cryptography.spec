@@ -3,25 +3,26 @@
 %bcond_without	python2	# CPython 2.x module
 %bcond_with	python3	# CPython 3.x module
 %bcond_without	doc	# Sphinx documentation
-%bcond_without	tests	# unit test
+%bcond_without	tests	# unit tests
 
 Summary:	Crypthography library for Python 2
 Summary(pl.UTF-8):	Biblioteka Cryptography dla Pythona 2
 Name:		python-cryptography
-Version:	3.3.1
-Release:	4
+Version:	3.3.2
+Release:	1
 License:	Apache v2.0 or BSD
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/cryptography/
 Source0:	https://files.pythonhosted.org/packages/source/c/cryptography/cryptography-%{version}.tar.gz
-# Source0-md5:	6faa1a7125c500c0e1586ad342ba3b30
+# Source0-md5:	e2ce2ec8a63965fad351f36ed70fde4b
 #Source1Download: https://pypi.org/simple/cryptography_vectors/
 Source1:	https://files.pythonhosted.org/packages/source/c/cryptography-vectors/cryptography_vectors-%{version}.tar.gz
-# Source1-md5:	2a23fd073fc1f95a697ee96fc991e419
+# Source1-md5:	79785df0f2d43f05895991b7e067a2ce
 Patch0:		openssl3.patch
 Patch1:		openssl3-tests.patch
 URL:		https://cryptography.io/
 BuildRequires:	openssl-devel >= 1.1.0
+BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov >= 5.4.15-48
 BuildRequires:	rpmbuild(macros) >= 1.714
 %if %{with python2}
@@ -56,8 +57,8 @@ BuildRequires:	python3-pytz
 %endif
 %endif
 %if %{with doc}
-BuildRequires:	python3-sphinx_rtd_theme
-BuildRequires:	sphinx-pdg-3 >= 1.6.5
+BuildRequires:	python-sphinx_rtd_theme
+BuildRequires:	sphinx-pdg-2 >= 1.6.5
 %endif
 Requires:	openssl >= 1.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -134,7 +135,7 @@ Dokumentacja API modułu cryptography.
 %setup -q -n cryptography-%{version} %{?with_tests:-a1}
 %patch0 -p1
 
-# Do not tests legacy, disabled by default algorithms
+# Do not test legacy, disabled by default algorithms
 # See man OSSL_PROVIDER-legacy(7)
 %{__rm} tests/hazmat/primitives/test_{arc4,blowfish,cast5,idea,seed}.py
 
@@ -166,7 +167,7 @@ PYTHONPATH=$(echo $(pwd)/build-3/lib.*) \
 
 %if %{with doc}
 %{__make} -C docs html \
-	SPHINXBUILD=sphinx-build-3
+	SPHINXBUILD=sphinx-build-2
 %endif
 
 %install
