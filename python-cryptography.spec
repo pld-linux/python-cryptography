@@ -21,7 +21,7 @@ Source1:	https://files.pythonhosted.org/packages/source/c/cryptography-vectors/c
 Patch0:		openssl3.patch
 Patch1:		openssl3-tests.patch
 URL:		https://cryptography.io/
-BuildRequires:	openssl-devel >= 1.1.0
+BuildRequires:	openssl-devel >= 3.0.0
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov >= 5.4.15-48
 BuildRequires:	rpmbuild(macros) >= 1.714
@@ -60,7 +60,7 @@ BuildRequires:	python3-pytz
 BuildRequires:	python-sphinx_rtd_theme
 BuildRequires:	sphinx-pdg-2 >= 1.6.5
 %endif
-Requires:	openssl >= 1.1.0
+Requires:	openssl >= 3.0.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -92,7 +92,7 @@ Ten pakiet zawiera moduły Pythona 2.
 Summary:	Crypthography library for Python 3
 Summary(pl.UTF-8):	Biblioteka Cryptography dla Pythona 3
 Group:		Libraries/Python
-Requires:	openssl >= 1.1.0
+Requires:	openssl >= 3.0.0
 
 %description -n python3-cryptography
 cryptography is a package designed to expose cryptographic recipes and
