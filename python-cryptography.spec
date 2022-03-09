@@ -20,6 +20,7 @@ Source1:	https://files.pythonhosted.org/packages/source/c/cryptography-vectors/c
 # Source1-md5:	79785df0f2d43f05895991b7e067a2ce
 Patch0:		openssl3.patch
 Patch1:		openssl3-tests.patch
+Patch2:		%{name}-openssl3.0.1.patch
 URL:		https://cryptography.io/
 BuildRequires:	openssl-devel >= 3.0.0
 BuildRequires:	rpm-build >= 4.6
@@ -134,6 +135,7 @@ Dokumentacja API modułu cryptography.
 %prep
 %setup -q -n cryptography-%{version} %{?with_tests:-a1}
 %patch0 -p1
+%patch2 -p1
 
 # Do not test legacy, disabled by default algorithms
 # See man OSSL_PROVIDER-legacy(7)

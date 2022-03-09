@@ -1,0 +1,24 @@
+https://github.com/pyca/cryptography/pull/6403
+
+From 076560a9507bbe26180f499adf750bc3851b97e8 Mon Sep 17 00:00:00 2001
+From: Alex Gaynor <alex.gaynor@gmail.com>
+Date: Mon, 11 Oct 2021 09:43:28 -0400
+Subject: [PATCH] Specify the out length when obtaining the tag for poly1305
+
+---
+ src/cryptography/hazmat/backends/openssl/poly1305.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/cryptography/hazmat/backends/openssl/poly1305.py b/src/cryptography/hazmat/backends/openssl/poly1305.py
+index 35f6819ce87..2ddae9847a4 100644
+--- a/src/cryptography/hazmat/backends/openssl/poly1305.py
++++ b/src/cryptography/hazmat/backends/openssl/poly1305.py
+@@ -51,7 +51,7 @@ def update(self, data):
+ 
+     def finalize(self):
+         buf = self._backend._ffi.new("unsigned char[]", _POLY1305_TAG_SIZE)
+-        outlen = self._backend._ffi.new("size_t *")
++        outlen = self._backend._ffi.new("size_t *", _POLY1305_TAG_SIZE)
+         res = self._backend._lib.EVP_DigestSignFinal(self._ctx, buf, outlen)
+         self._backend.openssl_assert(res != 0)
+         self._backend.openssl_assert(outlen[0] == _POLY1305_TAG_SIZE)
