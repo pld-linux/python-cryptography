@@ -134,8 +134,8 @@ Dokumentacja API modułu cryptography.
 
 %prep
 %setup -q -n cryptography-%{version} %{?with_tests:-a1}
-%patch0 -p1
-%patch2 -p1
+%patch -P0 -p1
+%patch -P2 -p1
 
 # Do not test legacy, disabled by default algorithms
 # See man OSSL_PROVIDER-legacy(7)
@@ -143,7 +143,7 @@ Dokumentacja API modułu cryptography.
 
 %if %{with tests}
 %{__mv} cryptography_vectors-%{version}/cryptography_vectors .
-%patch1 -p1
+%patch -P1 -p1
 %endif
 
 %build
